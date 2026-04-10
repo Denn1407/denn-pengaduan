@@ -32,40 +32,48 @@ $nama_baru = NULL;
 
 if ($nama_file != "") {
 
+    // ambil ekstensi
     $ekstensi = strtolower(pathinfo($nama_file, PATHINFO_EXTENSION));
+
+    // validasi ekstensi
     $allowed = array("jpg", "jpeg", "png");
 
     if (!in_array($ekstensi, $allowed)) {
         echo "<script>
-            alert('File harus JPG, JPEG, atau PNG!');
+            alert('File harus berupa JPG, JPEG, atau PNG!');
             window.location='pengaduan.php';
         </script>";
         exit();
     }
 
+    // validasi ukuran (max 2MB)
     if ($size > 2000000) {
         echo "<script>
-            alert('Ukuran file maksimal 2MB!');
+            alert('Ukuran file terlalu besar! Maksimal 2MB.');
             window.location='pengaduan.php';
         </script>";
         exit();
     }
 
+    // rename file
     $nama_baru = time() . "_" . $nama_file;
+
+    // upload file
     move_uploaded_file($tmp_file, "foto/" . $nama_baru);
 }
 
-// ================== QUERY TANPA TANGGAL ==================
+// ================== SIMPAN KE DATABASE ==================
 $query = "INSERT INTO pengaduan 
 (nama_pelapor, kelas_bagian, lokasi, jenis_kerusakan, deskripsi, foto, status)
 VALUES 
 ('$nama', '$kelas', '$lokasi', '$jenis', '$deskripsi', '$nama_baru', 'menunggu')";
 
-// ================== EKSEKUSI ==================
+// ================== EKSEKUSI QUERY ==================
 if (mysqli_query($conn, $query)) {
     header("Location: dashboard_user.php");
 } else {
-    echo "Error: " . mysqli_error($conn);
+    echo "ERROR: " . mysqli_error($conn);
 }
+
 exit();
 ?>
